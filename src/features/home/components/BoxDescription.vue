@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { ref, watchEffect, onBeforeUnmount } from "vue";
+import { ref, watchEffect, onBeforeUnmount, onMounted, computed } from "vue";
 import gsap from "gsap";
 import { BREAKPOINTS } from "../../../utils/sizes";
 import { Vector3 } from "three";
 import ProjectedElement from "../../../components/ProjectedElement.vue";
-import { t } from "../../../i18n/utils/translate";
 import AppearingText from "../../../components/AppearingText.vue";
 import PinIcon from "../../../components/icons/Pin.vue";
+import { useSupabaseProfile } from "../../../composables/useSupabaseProfile";
+import { locale } from "../../../i18n/store";
 
 const point = new Vector3(-0.9, 2, 6.75);
 
@@ -17,6 +18,22 @@ let matchMedia: gsap.MatchMedia | null = null;
 const emit = defineEmits<{
   "timeline:created": [timeline: gsap.core.Timeline];
 }>();
+
+const { profile, fetchProfile } = useSupabaseProfile();
+
+onMounted(() => {
+  fetchProfile();
+});
+
+const locationText = computed(() => {
+  if (!profile.value) return "...";
+  return locale.value === 'vi' ? profile.value.location_vi : profile.value.location_en;
+});
+
+const aboutText = computed(() => {
+  if (!profile.value) return "...";
+  return locale.value === 'vi' ? profile.value.about_tagline_vi : profile.value.about_tagline_en;
+});
 
 watchEffect((onInvalidate) => {
   const wrapperEl = wrapperRef.value;
@@ -102,13 +119,14 @@ const handleTimelineCreated = (timeline: gsap.core.Timeline, delay: number) => {
           <p class="box-description-details-name">Khoi</p>
           <div class="box-description-details-location">
             <PinIcon class="box-description-details-location-icon" />
-            <p class="box-description-details-location-copy">{{ t("Hanoi, Vietnam") }}</p>
+            <p class="box-description-details-location-copy">{{ locationText }}</p>
           </div>
         </div>
         <div class="box-description-line"></div>
-        <div class="box-description-copy">
+        <div class="box-description-copy" v-if="aboutText !== '...'">
           <AppearingText
-            :text="t('about-tagline')"
+            :key="aboutText"
+            :text="aboutText"
             :steps="3"
             :duration="0.7"
             @timeline:created="(tl: gsap.core.Timeline) => handleTimelineCreated(tl, 0)"

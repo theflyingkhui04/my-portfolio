@@ -15,6 +15,9 @@ export default defineConfig({
     port: 3000,
     strictPort: true,
     host: true,
+    watch: {
+      usePolling: true,
+    }
   },
   resolve: {
     extensions: [".js", ".jsx", ".ts", ".tsx", ".json", ".ogg", ".wav", ".glsl", ".ktx2"],

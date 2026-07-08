@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed, onMounted } from "vue";
 import Github from "./icons/Github.vue";
 import Linkedin from "./icons/Linkedin.vue";
 import Instagram from "./icons/Instagram.vue";
@@ -8,11 +9,25 @@ import Link from "./Link.vue";
 import { t } from "../i18n/utils/translate";
 import ButtonRound from "./ButtonRound.vue";
 
-import { social } from "../content/social";
+import { social as defaultSocial } from "../content/social";
+import { useSupabaseProfile } from "../composables/useSupabaseProfile";
 
 const props = defineProps<{
   variant?: "theme" | "background";
 }>();
+
+const { profile, fetchProfile } = useSupabaseProfile();
+
+onMounted(() => {
+  fetchProfile();
+});
+
+const socialLinks = computed(() => {
+  if (profile.value && profile.value.social_links && profile.value.social_links.length > 0) {
+    return profile.value.social_links;
+  }
+  return defaultSocial;
+});
 
 // map icon names to components
 const icons = {
@@ -29,7 +44,7 @@ const getAriaLabel = (name: string) => `${t("go-to")} ${name.charAt(0).toUpperCa
 <template>
   <div class="social">
     <Link
-      v-for="item in social"
+      v-for="item in socialLinks"
       :key="item.name"
       external
       :href="item.url"

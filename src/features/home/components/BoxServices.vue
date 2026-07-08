@@ -114,16 +114,23 @@ const SERVICES_EN = [
   { name: "Real-time Multiplayer" },
 ] as const satisfies { name: string }[];
 
-const SERVICES_DE = [
+const SERVICES_VI = [
   { name: "Three.js & WebGL" },
   { name: "Node.js & WebSockets" },
   { name: "React & Vue" },
   { name: "Kubernetes & Redis" },
-  { name: "Echtzeit-Mehrspieler" },
+  { name: "Real-time Multiplayer" },
 ] as const satisfies { name: string }[];
 
+import { useSupabaseProfile } from "../../../composables/useSupabaseProfile";
+
+const { profile } = useSupabaseProfile();
+
 const services = computed(() => {
-  return locale.value === "en" ? SERVICES_EN : SERVICES_DE;
+  if (profile.value && profile.value.skills && profile.value.skills.length > 0) {
+    return profile.value.skills.map(s => ({ name: s }));
+  }
+  return locale.value === "en" ? SERVICES_EN : SERVICES_VI;
 });
 </script>
 

@@ -1,12 +1,22 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, onMounted, onUnmounted, computed } from "vue";
 import { transitions } from "../../../animations";
 import { t } from "../../../i18n/utils/translate";
 import Social from "../../../components/Social.vue";
+import { useSupabaseProfile } from "../../../composables/useSupabaseProfile";
+import { locale } from "../../../i18n/store";
 
 const contactElement = ref<HTMLElement | null>(null);
 
+const { profile, fetchProfile } = useSupabaseProfile();
+
+const titleText = computed(() => {
+  if (!profile.value) return "...";
+  return locale.value === 'vi' ? profile.value.contact_title_vi : profile.value.contact_title_en;
+});
+
 onMounted(() => {
+  fetchProfile();
   if (contactElement.value) {
     transitions.contact.setup(contactElement.value);
   }
@@ -20,7 +30,7 @@ onUnmounted(() => {
 <template>
   <div class="contact grid" ref="contactElement">
     <div class="contact-content">
-      <h2 class="contact-title" v-html="t('lets-work-together')"></h2>
+      <h2 class="contact-title" v-html="titleText !== '...' ? titleText : t('lets-work-together')"></h2>
       <Social variant="background" />
     </div>
   </div>

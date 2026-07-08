@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import { ref, watch, onMounted } from "vue";
-import { previews } from "../../../content/projects/previews";
 import { locale } from "../../../i18n/store";
 import PreviewCard from "../../projects/components/PreviewCard.vue";
 import NotchSection from "../../../components/NotchSection.vue";
 import Banner from "../../../components/Banner.vue";
 import { t } from "../../../i18n/utils/translate";
 import { isFeatureEnabled } from "../../../utils/features";
-
+import { useSupabaseProjects } from "../../../composables/useSupabaseProjects";
 import type { ProjectPreview } from "../../../content/types";
 
-const loadedPreviews = ref<ProjectPreview[] | null>(null);
+const loadedPreviews = ref<ProjectPreview[]>([]);
+const { fetchProjects, projects } = useSupabaseProjects();
 
 const emit = defineEmits<{
   (e: "loaded", previews: ProjectPreview[]): void;
@@ -18,15 +18,20 @@ const emit = defineEmits<{
 
 const loadPreviews = async () => {
   if (!locale.value) return;
-  const func = previews[locale.value as keyof typeof previews];
-  if (!func) return;
-  const module = await func();
-  loadedPreviews.value = module.default;
-  emit("loaded", module.default);
+  await fetchProjects(locale.value as 'en' | 'vi');
+  
+  // Map Supabase rows to the ProjectPreview format
+  loadedPreviews.value = projects.value.map((p) => ({
+    title: p.title,
+    slug: p.slug,
+    thumbnail: p.thumbnail,
+    description: p.description || ''
+  }));
+  
+  emit("loaded", loadedPreviews.value);
 };
 
 watch(locale, loadPreviews);
-
 onMounted(loadPreviews);
 </script>
 

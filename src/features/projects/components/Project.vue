@@ -2,25 +2,32 @@
 import { projectId, projectVisible, recentProjectId } from "../../../composables/useRouteObserver";
 import { isTransitioning } from "../../../composables/useProjectTransition";
 import { ref, watch } from "vue";
-import { projectModules } from "../../../content/projects";
 import ProjectContent from "./ProjectContent.vue";
 import Footer from "../../../components/Footer.vue";
 import { locale } from "../../../i18n/store";
 import { lenis } from "../../../composables/useScroll";
+import { useSupabaseProjects } from "../../../composables/useSupabaseProjects";
 
 import type { Locale } from "../../../i18n/types";
 
 const loading = ref(true);
-const content = ref(null);
+const content = ref<any>(null);
 const error = ref<Error | null>(null);
 
+const { fetchProjectBySlug } = useSupabaseProjects();
+
 const fetchProject = async (project: string | undefined) => {
+  if (!project) return;
+  loading.value = true;
   try {
-    const module = await projectModules[locale.value as Locale][project as string].default;
-    content.value = module;
-    loading.value = false;
+    const data = await fetchProjectBySlug(project, locale.value as 'en' | 'vi');
+    if (data) {
+      content.value = data;
+    } else {
+      throw new Error(`Failed to fetch project ${project}`);
+    }
   } catch (err) {
-    error.value = new Error(`Failed to fetch project ${project}`);
+    error.value = err as Error;
   } finally {
     loading.value = false;
   }
