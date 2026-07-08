@@ -8,8 +8,6 @@ import { locale } from "../../../i18n/store";
 import { lenis } from "../../../composables/useScroll";
 import { useSupabaseProjects } from "../../../composables/useSupabaseProjects";
 
-import type { Locale } from "../../../i18n/types";
-
 const loading = ref(true);
 const content = ref<any>(null);
 const error = ref<Error | null>(null);

@@ -29,14 +29,16 @@ const socialLinks = computed(() => {
   return defaultSocial;
 });
 
+import type { Component } from "vue";
+
 // map icon names to components
-const icons = {
+const icons: Record<string, Component> = {
   mail: Mail,
   github: Github,
   linkedin: Linkedin,
   x: X,
   instagram: Instagram,
-} as const;
+};
 
 const getAriaLabel = (name: string) => `${t("go-to")} ${name.charAt(0).toUpperCase() + name.slice(1)}`;
 </script>

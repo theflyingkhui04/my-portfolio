@@ -1,13 +1,12 @@
 import { ref } from 'vue';
 import { supabase } from '../utils/supabase';
-import type { ProjectContent } from '../content/types';
 
 export function useSupabaseProjects() {
   const projects = ref<any[]>([]);
   const loading = ref(false);
   const error = ref<string | null>(null);
 
-  const fetchProjects = async (locale: 'en' | 'de' = 'en') => {
+  const fetchProjects = async (locale: 'en' | 'vi' = 'en') => {
     loading.value = true;
     error.value = null;
     try {
@@ -27,7 +26,7 @@ export function useSupabaseProjects() {
     }
   };
 
-  const fetchProjectBySlug = async (slug: string, locale: 'en' | 'de' = 'en') => {
+  const fetchProjectBySlug = async (slug: string, locale: 'en' | 'vi' = 'en') => {
     loading.value = true;
     try {
       const { data, error: err } = await supabase
@@ -50,7 +49,7 @@ export function useSupabaseProjects() {
   const uploadMedia = async (file: File, slug: string) => {
     const fileExt = file.name.split('.').pop();
     const fileName = `${slug}/${Math.random().toString(36).substring(2)}.${fileExt}`;
-    const { data, error: err } = await supabase.storage
+    const { error: err } = await supabase.storage
       .from('portfolio-media')
       .upload(fileName, file);
 
@@ -85,7 +84,7 @@ export function useSupabaseProjects() {
     }
   };
 
-  const deleteProject = async (slug: string, locale: 'en' | 'de' = 'en') => {
+  const deleteProject = async (slug: string, locale: 'en' | 'vi' = 'en') => {
     loading.value = true;
     try {
       const { error: err } = await supabase
